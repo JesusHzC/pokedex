@@ -1,4 +1,4 @@
-package com.github.jesushzc.pokedex.ui.theme
+package com.github.jesushzc.pokedex.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
