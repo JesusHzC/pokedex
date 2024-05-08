@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -118,10 +120,83 @@ private fun ShimmerGridItem(
     }
 }
 
+@Composable
+fun SingleShapeShimmer(
+    modifier: Modifier = Modifier,
+    shape: Shape = RectangleShape,
+    animationDuration: Int = 1500,
+    repeatMode: RepeatMode = RepeatMode.Restart,
+) {
+    val shimmerColors = listOf(
+        Color.LightGray.copy(alpha = 0.6f),
+        Color.LightGray.copy(alpha = 0.2f),
+        Color.LightGray.copy(alpha = 0.6f),
+    )
+
+    val transition = rememberInfiniteTransition(label = "")
+    val translateAnim = transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1000f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = animationDuration,
+                easing = FastOutSlowInEasing
+            ),
+            repeatMode = repeatMode
+        ), label = ""
+    )
+
+    val brush = Brush.linearGradient(
+        colors = shimmerColors,
+        start = Offset.Zero,
+        end = Offset(x = translateAnim.value, y = translateAnim.value)
+    )
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(all = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Spacer(
+            modifier = modifier
+                .size(80.dp)
+                .clip(shape)
+                .background(brush)
+        )
+    }
+}
+
+@Composable
+fun GridShimmer(
+    shape: Shape = RoundedCornerShape(10.dp),
+    totalElements: Int = 5
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        userScrollEnabled = false
+    ) {
+        items(totalElements) {
+            SingleShapeShimmer(
+                shape = shape,
+                modifier = Modifier.width(180.dp)
+                    .height(150.dp)
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun ShimmerPreview() {
-    InverseGridShimmer(
-        totalElements = 1
-    )
+    Column {
+        InverseGridShimmer(
+            totalElements = 1
+        )
+
+        SingleShapeShimmer()
+
+        GridShimmer()
+    }
 }

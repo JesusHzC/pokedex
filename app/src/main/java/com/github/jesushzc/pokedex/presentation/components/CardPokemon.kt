@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -30,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.github.jesushzc.pokedex.R
 import com.github.jesushzc.pokedex.domain.model.Pokemon
 import com.github.jesushzc.pokedex.domain.model.PokemonEntry
 import com.github.jesushzc.pokedex.domain.model.Type
@@ -62,107 +65,40 @@ private fun PokemonContent(
 ) {
     Card(
         modifier = modifier
-            .fillMaxWidth()
+            .wrapContentWidth()
             .wrapContentHeight(),
         colors = CardDefaults.cardColors(
-            containerColor = cardColor
+            containerColor = cardColor,
+            contentColor = cardColor
         )
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
                 .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column {
-                Text(
-                    text = "#${pokemon.number}",
-                    fontSize = 18.sp,
-                    color = textColor,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.size(4.dp))
-                Text(
-                    text = pokemon.name,
-                    fontSize = 24.sp,
-                    color = textColor,
-                    fontWeight = FontWeight.Bold
-                )
-                /*
-                Spacer(modifier = Modifier.size(4.dp))
-                Box(
-                    modifier = Modifier
-                        .background(
-                            color = parseTypeToColor(pokemon.types[0].type!!),
-                            shape = RoundedCornerShape(16.dp)
-                        ),
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(
-                                vertical = 4.dp,
-                                horizontal = 8.dp
-                            ),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(20.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    color = Color.White,
-                                    shape = CircleShape
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                painter = painterResource(id = parseTypeToImage(pokemon.types[0].type!!)),
-                                contentDescription = null,
-                                modifier = Modifier.size(14.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = pokemon.types[0].type!!.name!!.replaceFirstChar {
-                                if (it.isLowerCase()) it.titlecase(
-                                    Locale.ROOT
-                                ) else it.toString()
-                            },
-                            fontSize = 14.sp,
-                            color = Color.Black,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-                */
-            }
             AsyncImage(
                 model = pokemon.imageUrl,
-                contentDescription = null,
-                modifier = Modifier.size(80.dp),
-                contentScale = ContentScale.FillBounds
-            )
-            /*Box(
+                contentDescription = pokemon.name,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(100.dp)
-                    .background(
-                        color = parseTypeToColor(pokemon.types[0].type!!),
-                        shape = RoundedCornerShape(16.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = parseTypeToImage(pokemon.types[0].type!!)),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize()
-                )
-                AsyncImage(
-                    model = imageUrl,
-                    contentDescription = null,
-                    modifier = Modifier.size(80.dp)
-                )
-            }*/
+                    .width(150.dp)
+                    .height(80.dp)
+            )
+            Spacer(modifier = Modifier.height(14.dp))
+            Text(
+                text = pokemon.name
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() },
+                color = textColor,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "No. ${pokemon.number}",
+                color = textColor,
+                fontSize = 14.sp
+            )
         }
     }
 }
@@ -190,7 +126,7 @@ private fun CardPokemonPreview() {
                 )
             )
         ),
-        cardColor = Color.Red,
-        textColor = Color.White
+        cardColor = Color.White,
+        textColor = Color.Black
     )
 }
