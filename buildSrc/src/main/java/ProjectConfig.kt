@@ -13,4 +13,6 @@ object ProjectConfig {
         return "$versionMajor.$versionMinor.$versionPatch"
     }
 
+    const val baseUrl = "https://pokeapi.co/api/v2/"
+
 }
