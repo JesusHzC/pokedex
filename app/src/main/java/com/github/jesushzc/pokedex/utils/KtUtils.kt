@@ -18,19 +18,29 @@ fun calcDominantColors(drawable: Drawable, onFinish: (backgroundColor: Color, te
         palette?.dominantSwatch?.rgb?.let { backgroundColorValue ->
             val backgroundColor = Color(backgroundColorValue)
 
-            // Convertimos el color de fondo a un entero para calcular la luminancia
             val backgroundColorInt = backgroundColor.toArgb()
 
-            // Calculando un color de texto contrastante
             val textColor = if (ColorUtils.calculateLuminance(backgroundColorInt) < 0.5) {
-                // Si el fondo es oscuro, el texto debería ser claro
                 Color.White
             } else {
-                // Si el fondo es claro, el texto debería ser oscuro
                 Color.Black
             }
 
             onFinish(backgroundColor, textColor)
         }
     }
+}
+
+/**
+ * Replace / with ## to avoid issues with the URL
+ */
+fun String.replaceWithSharp(): String {
+    return this.replace("/", "##")
+}
+
+/**
+ * Replace ## with / to avoid issues with the URL
+ */
+fun String.replaceWithSlash(): String {
+    return this.replace("##", "/")
 }

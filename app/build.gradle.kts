@@ -81,5 +81,6 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.androidx.palette.ktx)
+    implementation(libs.androidx.compose.animation)
 
 }

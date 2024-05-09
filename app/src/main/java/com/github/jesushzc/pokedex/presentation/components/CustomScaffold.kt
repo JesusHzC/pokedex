@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.jesushzc.pokedex.R
@@ -140,7 +141,7 @@ fun CustomTopAppBar(
             titleContentColor = Color.Black,
         ),
         title = {
-            Text(title)
+            Text(title, fontWeight = FontWeight.Bold)
         },
         scrollBehavior = scrollBehavior,
     )

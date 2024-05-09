@@ -11,7 +11,6 @@ import coil.imageLoader
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.github.jesushzc.pokedex.domain.model.PokemonEntry
-import com.github.jesushzc.pokedex.domain.use_case.PokemonInfoUseCase
 import com.github.jesushzc.pokedex.domain.use_case.PokemonListUseCase
 import com.github.jesushzc.pokedex.utils.Constants.API_ERROR_MESSAGE
 import com.github.jesushzc.pokedex.utils.Constants.NUMBER_POKEMON_KEY
@@ -29,7 +28,6 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val pokemonListUseCase: PokemonListUseCase,
-    private val pokemonInfoUseCase: PokemonInfoUseCase,
     private val appContext: Context
 ) : ViewModel() {
 

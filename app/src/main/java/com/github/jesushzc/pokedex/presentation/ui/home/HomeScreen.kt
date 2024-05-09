@@ -1,5 +1,8 @@
 package com.github.jesushzc.pokedex.presentation.ui.home
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -17,31 +20,36 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.jesushzc.pokedex.presentation.components.CardPokemon
 import com.github.jesushzc.pokedex.presentation.components.CustomScaffold
 import com.github.jesushzc.pokedex.presentation.components.ErrorScreen
 import com.github.jesushzc.pokedex.presentation.components.GridShimmer
+import com.github.jesushzc.pokedex.presentation.navigation.Routes
+import com.github.jesushzc.pokedex.utils.replaceWithSharp
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel()
+fun SharedTransitionScope.HomeScreen(
+    viewModel: HomeViewModel = hiltViewModel(),
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    onNavigateTo: (String) -> Unit
 ) {
 
     val state = viewModel.state
     val coroutineScope = rememberCoroutineScope()
     val lazyListState = rememberLazyGridState()
 
-    var showFloatButton by rememberSaveable {
+    var showFloatButton by remember {
         mutableStateOf(false)
     }
 
@@ -72,7 +80,9 @@ fun HomeScreen(
             else -> {
                 HomeContent(
                     lazyListState = lazyListState,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    animatedVisibilityScope = animatedVisibilityScope,
+                    onNavigateTo = onNavigateTo
                 )
             }
         }
@@ -80,10 +90,13 @@ fun HomeScreen(
 
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun HomeContent(
+private fun SharedTransitionScope.HomeContent(
     lazyListState: LazyGridState,
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    onNavigateTo: (String) -> Unit
 ) {
     val state = viewModel.state
     val gridColumns = 2
@@ -109,7 +122,12 @@ private fun HomeContent(
             CardPokemon(
                 pokemon = item,
                 cardColor = backgroundColor,
-                textColor = textColor
+                textColor = textColor,
+                animatedVisibilityScope = animatedVisibilityScope,
+                onPokemonClick = {
+                    val image = item.imageUrl.replaceWithSharp()
+                    onNavigateTo(Routes.POKEMON_SCREEN + "/${item.name}/$image/${item.number}/${backgroundColor.toArgb()}")
+                }
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
