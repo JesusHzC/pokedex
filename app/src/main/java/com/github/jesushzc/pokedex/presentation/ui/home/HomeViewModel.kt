@@ -10,6 +10,8 @@ import androidx.lifecycle.viewModelScope
 import coil.imageLoader
 import coil.request.ImageRequest
 import coil.request.SuccessResult
+import com.github.jesushzc.pokedex.di.DefaultDispatcher
+import com.github.jesushzc.pokedex.di.IoDispatcher
 import com.github.jesushzc.pokedex.domain.model.PokemonEntry
 import com.github.jesushzc.pokedex.domain.use_case.PokemonListUseCase
 import com.github.jesushzc.pokedex.utils.Constants.API_ERROR_MESSAGE
@@ -20,15 +22,20 @@ import com.github.jesushzc.pokedex.utils.DefaultPaginator
 import com.github.jesushzc.pokedex.utils.Resource
 import com.github.jesushzc.pokedex.utils.calcDominantColors
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val pokemonListUseCase: PokemonListUseCase,
-    private val appContext: Context
+    private val appContext: Context,
+    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private var paginator: DefaultPaginator<Int, PokemonEntry>
@@ -63,7 +70,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun getNextPage(nextPage: Int): Result<List<PokemonEntry>> {
-        delay(2000L)
+        delay(1_500L)
         return when (val result = pokemonListUseCase.invoke(PAGE_SIZE, nextPage * PAGE_SIZE)) {
             is Resource.Error -> {
                 state = state.copy(error = API_ERROR_MESSAGE)
@@ -79,6 +86,7 @@ class HomeViewModel @Inject constructor(
                         entry.url.takeLastWhile { it.isDigit() }
                     }
                     val url = URL_IMAGE_POKEMON.replace(NUMBER_POKEMON_KEY, number)
+                    val (backgroundColor, textColor) = fetchColorsAsync(url)
                     PokemonEntry(
                         number = (nextPage * PAGE_SIZE) + index + 1,
                         name = entry.name.replaceFirstChar {
@@ -86,7 +94,9 @@ class HomeViewModel @Inject constructor(
                                 Locale.ROOT
                             ) else it.toString()
                         },
-                        imageUrl = url
+                        imageUrl = url,
+                        containerColor = backgroundColor ?: Color.White,
+                        contentColor = textColor ?: Color.Black
                     )
                 } ?: emptyList()
                 Result.success(pokemonEntries)
@@ -95,16 +105,22 @@ class HomeViewModel @Inject constructor(
     }
 
     fun loadNextItems() {
-        viewModelScope.launch {
+        viewModelScope.launch(defaultDispatcher) {
             paginator.loadNextItems()
         }
     }
 
-    fun fetchColors(
+    private suspend fun fetchColorsAsync(url: String): Pair<Color?, Color?> = suspendCoroutine { continuation ->
+        fetchColors(url) { background, text ->
+            continuation.resume(Pair(background, text))
+        }
+    }
+
+    private fun fetchColors(
         url: String,
         dominantColor: (Color, Color) -> Unit
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             // Requesting the image using coil's ImageRequest
             val req = ImageRequest.Builder(appContext)
                 .data(url)
@@ -122,24 +138,5 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-
-    /*fun getPokemonInfo(name: String) {
-        viewModelScope.launch {
-            when (val result = pokemonInfoUseCase.invoke(pokemonEntry.name)) {
-                is Resource.Error -> Unit
-                is Resource.Success -> {
-                    state = state.copy(
-                        items = state.items.map {
-                            if (it.name == pokemonEntry.name) {
-                                it.copy(details = result.data)
-                            } else {
-                                it
-                            }
-                        }
-                    )
-                }
-            }
-        }
-    }*/
 
 }

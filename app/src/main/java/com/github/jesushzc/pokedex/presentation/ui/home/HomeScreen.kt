@@ -24,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -66,7 +65,7 @@ fun SharedTransitionScope.HomeScreen(
         showFloatingButton = showFloatButton,
         onFloatingButtonClicked = {
             coroutineScope.launch {
-                lazyListState.animateScrollToItem(0, 0)
+                lazyListState.scrollToItem(0)
             }
         }
     ) {
@@ -105,28 +104,24 @@ private fun SharedTransitionScope.HomeContent(
         columns = GridCells.Fixed(gridColumns),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        items(state.items.size) { i ->
+        items(
+            state.items.size,
+            key = {
+                state.items[it].id
+            }
+        ) { i ->
             val item = state.items[i]
             if (i >= state.items.size - 1 && !state.endReached && !state.isLoading) {
                 viewModel.loadNextItems()
             }
-            var backgroundColor by remember { mutableStateOf(Color.White) }
-            var textColor by remember { mutableStateOf(Color.Black) }
-            viewModel.fetchColors(
-                url = item.imageUrl,
-                dominantColor = { background, text ->
-                    backgroundColor = background
-                    textColor = text
-                }
-            )
             CardPokemon(
                 pokemon = item,
-                cardColor = backgroundColor,
-                textColor = textColor,
+                cardColor = item.containerColor,
+                textColor = item.contentColor,
                 animatedVisibilityScope = animatedVisibilityScope,
                 onPokemonClick = {
                     val image = item.imageUrl.replaceWithSharp()
-                    onNavigateTo(Routes.POKEMON_SCREEN + "/${item.name}/$image/${item.number}/${backgroundColor.toArgb()}")
+                    onNavigateTo(Routes.POKEMON_SCREEN + "/${item.name}/$image/${item.number}/${item.containerColor.toArgb()}")
                 }
             )
             Spacer(modifier = Modifier.height(8.dp))
