@@ -17,7 +17,7 @@ hilt = "2.48"
 retrofit = "2.9.0"
 okHttpBom = "4.12.0"
 paletteKtx = "1.0.0"
-composeAnimation = "1.7.0-alpha07"
+composeAnimation = "1.7.0-alpha08"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

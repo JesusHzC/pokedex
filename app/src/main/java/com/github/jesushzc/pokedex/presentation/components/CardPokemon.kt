@@ -93,29 +93,13 @@ private fun SharedTransitionScope.PokemonContent(
                     .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() },
                 color = textColor,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .sharedElement(
-                        state = rememberSharedContentState(key = "name/${pokemon.name}"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        boundsTransform = { _, _ ->
-                            tween(durationMillis = 1000)
-                        }
-                    )
+                fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "No. ${pokemon.number}",
                 color = textColor,
-                fontSize = 14.sp,
-                modifier = Modifier
-                    .sharedElement(
-                        state = rememberSharedContentState(key = "number/${pokemon.number}"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        boundsTransform = { _, _ ->
-                            tween(durationMillis = 1000)
-                        }
-                    )
+                fontSize = 14.sp
             )
         }
     }

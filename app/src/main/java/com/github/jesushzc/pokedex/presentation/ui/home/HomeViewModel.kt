@@ -70,7 +70,6 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun getNextPage(nextPage: Int): Result<List<PokemonEntry>> {
-        delay(1_500L)
         return when (val result = pokemonListUseCase.invoke(PAGE_SIZE, nextPage * PAGE_SIZE)) {
             is Resource.Error -> {
                 state = state.copy(error = API_ERROR_MESSAGE)

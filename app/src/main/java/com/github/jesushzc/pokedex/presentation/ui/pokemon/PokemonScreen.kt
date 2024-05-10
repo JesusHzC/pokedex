@@ -100,27 +100,11 @@ private fun SharedTransitionScope.PokemonContent(
             Text(
                 text = pokemonName,
                 fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .sharedElement(
-                        state = rememberSharedContentState(key = "name/$pokemonName"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        boundsTransform = { _, _ ->
-                            tween(durationMillis = 1000)
-                        }
-                    )
+                fontWeight = FontWeight.Bold
             )
             Text(
                 text = "N° $pokemonNumber",
-                fontSize = 18.sp,
-                modifier = Modifier
-                    .sharedElement(
-                        state = rememberSharedContentState(key = "number/$pokemonNumber"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        boundsTransform = { _, _ ->
-                            tween(durationMillis = 1000)
-                        }
-                    )
+                fontSize = 18.sp
             )
 
             Spacer(modifier = Modifier.height(16.dp))
