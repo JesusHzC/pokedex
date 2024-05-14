@@ -2,6 +2,7 @@ package com.github.jesushzc.pokedex.data.repository
 
 import android.util.Log
 import com.github.jesushzc.pokedex.data.remote.PokeApi
+import com.github.jesushzc.pokedex.domain.model.Characteristic
 import com.github.jesushzc.pokedex.domain.model.Pokemon
 import com.github.jesushzc.pokedex.domain.model.PokemonList
 import com.github.jesushzc.pokedex.domain.repository.PokemonRepository
@@ -26,6 +27,16 @@ class PokemonRepositoryImpl(
     override suspend fun getPokemonInfo(name: String): Resource<Pokemon> {
         return try {
             val response = pokeApi.getPokemonInfo(name)
+            Resource.Success(response)
+        } catch(e: Exception) {
+            Log.e(API_ERROR_LOG_TAG, e.message ?: API_ERROR_MESSAGE)
+            Resource.Error(API_ERROR_MESSAGE)
+        }
+    }
+
+    override suspend fun getPokemonCharacteristic(id: Int): Resource<Characteristic> {
+        return try {
+            val response = pokeApi.getPokemonCharacteristic(id)
             Resource.Success(response)
         } catch(e: Exception) {
             Log.e(API_ERROR_LOG_TAG, e.message ?: API_ERROR_MESSAGE)

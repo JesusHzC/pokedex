@@ -3,6 +3,7 @@ package com.github.jesushzc.pokedex.utils
 import androidx.compose.ui.graphics.Color
 import com.github.jesushzc.pokedex.R
 import com.github.jesushzc.pokedex.domain.model.Stat
+import com.github.jesushzc.pokedex.domain.model.Stats
 import com.github.jesushzc.pokedex.domain.model.Type
 import com.github.jesushzc.pokedex.presentation.theme.AtkColor
 import com.github.jesushzc.pokedex.presentation.theme.DefColor
@@ -78,8 +79,8 @@ fun parseTypeToImage(type: Type): Int {
     }
 }
 
-fun parseStatToColor(stat: Stat): Color {
-    return when(stat.name!!.lowercase()) {
+fun parseStatToColor(stat: Stats): Color {
+    return when(stat.stat!!.name!!.lowercase()) {
         "hp" -> HPColor
         "attack" -> AtkColor
         "defense" -> DefColor
@@ -90,8 +91,8 @@ fun parseStatToColor(stat: Stat): Color {
     }
 }
 
-fun parseStatToAbbr(stat: Stat): String {
-    return when(stat.name!!.lowercase()) {
+fun parseStatToAbbr(stat: Stats): String {
+    return when(stat.stat!!.name!!.lowercase()) {
         "hp" -> "HP"
         "attack" -> "Atk"
         "defense" -> "Def"
