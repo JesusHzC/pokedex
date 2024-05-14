@@ -20,6 +20,9 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -96,7 +99,7 @@ fun SharedTransitionScope.HomeScreen(
 
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun SharedTransitionScope.HomeContent(
     lazyListState: LazyGridState,
@@ -108,80 +111,105 @@ private fun SharedTransitionScope.HomeContent(
     val state = viewModel.state
     val gridColumns = 2
 
-    Column(
+    val pullToRefreshState = rememberPullToRefreshState()
+
+    LaunchedEffect(state.pullToRefresh) {
+        if(state.pullToRefresh) {
+            pullToRefreshState.startRefresh()
+        } else {
+            pullToRefreshState.endRefresh()
+        }
+    }
+
+    if(pullToRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            viewModel.pullToRefresh()
+        }
+    }
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .nestedScroll(pullToRefreshState.nestedScrollConnection)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(PaddingValues(horizontal = 16.dp, vertical = 12.dp)),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+        PullToRefreshContainer(
+            state = pullToRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
+        Column(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            SearchTextField(
-                text = state.query,
-                onTextChanged = viewModel::onQueryChanged,
-                onSearch = viewModel::onSearch,
-                modifier = Modifier.weight(1f),
-                placeholder = "Search Pokemon"
-            )
-            Image(
-                painter = painterResource(id = R.drawable.search_pokemon),
-                contentDescription = "Search Icon",
-                modifier = Modifier.size(80.dp),
-                contentScale = ContentScale.Crop
-            )
-        }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(PaddingValues(horizontal = 16.dp, vertical = 12.dp)),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                SearchTextField(
+                    text = state.query,
+                    onTextChanged = viewModel::onQueryChanged,
+                    onSearch = viewModel::onSearch,
+                    modifier = Modifier.weight(1f),
+                    placeholder = "Search Pokemon"
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.search_pokemon),
+                    contentDescription = "Search Icon",
+                    modifier = Modifier.size(80.dp),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
-        when {
-            (state.isLoading && state.items.isEmpty()) || state.searching -> {
-                GridShimmer(totalElements = 12)
-            }
-            !state.error.isNullOrEmpty() -> {
-                ErrorScreen(state.error)
-                onError()
-            }
-            else -> {
-                LazyVerticalGrid(
-                    state = lazyListState,
-                    columns = GridCells.Fixed(gridColumns),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    contentPadding = PaddingValues(16.dp),
-                ) {
-                    items(
-                        state.items.size,
-                        key = {
-                            state.items[it].id
-                        }
-                    ) { i ->
-                        val item = state.items[i]
-                        if (i >= state.items.size - 1 && !state.endReached && !state.isLoading && !state.searchingWasFound) {
-                            viewModel.loadNextItems()
-                        }
-                        CardPokemon(
-                            pokemon = item,
-                            cardColor = item.containerColor,
-                            textColor = item.contentColor,
-                            animatedVisibilityScope = animatedVisibilityScope,
-                            onPokemonClick = {
-                                val image = item.imageUrl.replaceWithSharp()
-                                onNavigateTo(Routes.POKEMON_SCREEN + "/${item.name}/$image/${item.number}/${item.containerColor.toArgb()}")
-                            }
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                    item(
-                        span = { GridItemSpan(gridColumns) }
+            when {
+                (state.isLoading && state.items.isEmpty()) || state.searching -> {
+                    GridShimmer(totalElements = 12)
+                }
+                !state.error.isNullOrEmpty() -> {
+                    ErrorScreen(state.error)
+                    onError()
+                }
+                else -> {
+                    LazyVerticalGrid(
+                        state = lazyListState,
+                        columns = GridCells.Fixed(gridColumns),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        contentPadding = PaddingValues(16.dp),
                     ) {
-                        if (state.isLoading && state.items.isNotEmpty()) {
-                            Box(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
+                        items(
+                            state.items.size,
+                            key = {
+                                state.items[it].id
+                            }
+                        ) { i ->
+                            val item = state.items[i]
+                            if (i >= state.items.size - 1 && !state.endReached && !state.isLoading && !state.searchingWasFound) {
+                                viewModel.loadNextItems()
+                            }
+                            CardPokemon(
+                                pokemon = item,
+                                cardColor = item.containerColor,
+                                textColor = item.contentColor,
+                                animatedVisibilityScope = animatedVisibilityScope,
+                                onPokemonClick = {
+                                    val image = item.imageUrl.replaceWithSharp()
+                                    onNavigateTo(Routes.POKEMON_SCREEN + "/${item.name}/$image/${item.number}/${item.containerColor.toArgb()}")
+                                }
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                        item(
+                            span = { GridItemSpan(gridColumns) }
+                        ) {
+                            if (state.isLoading && state.items.isNotEmpty()) {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.align(Alignment.Center)
+                                    )
+                                }
                             }
                         }
                     }

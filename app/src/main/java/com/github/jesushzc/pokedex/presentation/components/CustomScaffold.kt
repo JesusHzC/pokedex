@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -43,7 +44,7 @@ fun CustomScaffold(
     onFloatingButtonClicked: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -141,6 +142,7 @@ fun CustomTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = TopBarColor,
             titleContentColor = Color.Black,
+            scrolledContainerColor = TopBarColor,
         ),
         title = {
             Text(title, fontWeight = FontWeight.Bold)

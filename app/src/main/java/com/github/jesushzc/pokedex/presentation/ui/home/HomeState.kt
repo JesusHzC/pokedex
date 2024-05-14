@@ -10,5 +10,6 @@ data class HomeState(
     val page: Int = 0,
     val query: String = "",
     val searching: Boolean = false,
-    val searchingWasFound: Boolean = false
+    val searchingWasFound: Boolean = false,
+    val pullToRefresh: Boolean = false
 )

@@ -41,7 +41,7 @@ class HomeViewModel @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-    private var paginator: DefaultPaginator<Int, PokemonEntry>
+    private var paginator: DefaultPaginator<Int, PokemonEntry>? = null
 
     var state by mutableStateOf(HomeState())
         private set
@@ -49,6 +49,11 @@ class HomeViewModel @Inject constructor(
     private var backupList: List<PokemonEntry> = emptyList()
 
     init {
+        initPaginator()
+        loadNextItems()
+    }
+
+    private fun initPaginator() {
         paginator = DefaultPaginator(
             initialKey = state.page,
             onLoadUpdated = {
@@ -62,6 +67,8 @@ class HomeViewModel @Inject constructor(
             },
             onError = {
                 state = state.copy(error = it?.localizedMessage)
+                if (state.pullToRefresh)
+                    state = state.copy(pullToRefresh = false)
             },
             onSuccess = { items, newKey ->
                 state = state.copy(
@@ -69,10 +76,11 @@ class HomeViewModel @Inject constructor(
                     page = newKey,
                     endReached = items.isEmpty()
                 )
+                if (state.pullToRefresh)
+                    state = state.copy(pullToRefresh = false)
                 backupList = state.items
             }
         )
-        loadNextItems()
     }
 
     private suspend fun getNextPage(nextPage: Int): Result<List<PokemonEntry>> {
@@ -111,7 +119,7 @@ class HomeViewModel @Inject constructor(
 
     fun loadNextItems() {
         viewModelScope.launch(defaultDispatcher) {
-            paginator.loadNextItems()
+            paginator?.loadNextItems()
         }
     }
 
@@ -209,6 +217,17 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun pullToRefresh() {
+        state = state.copy(
+            pullToRefresh = true,
+            items = emptyList(),
+            page = 0,
+            endReached = false
+        )
+        initPaginator()
+        loadNextItems()
     }
 
 }
