@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -33,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.jesushzc.pokedex.R
+import com.github.jesushzc.pokedex.presentation.theme.TopBarColor
 import com.github.jesushzc.pokedex.utils.Constants.EMPTY_STRING
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,7 +43,7 @@ fun CustomScaffold(
     onFloatingButtonClicked: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -105,7 +105,9 @@ private fun NavigationBottom() {
 
     var selectedItem by remember { mutableIntStateOf(0) }
 
-    NavigationBar {
+    NavigationBar(
+        containerColor = Color.White
+    ) {
         items.forEachIndexed { index, navigationItem ->
             NavigationBarItem(
                 icon = {
@@ -137,7 +139,7 @@ fun CustomTopAppBar(
 ) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.White,
+            containerColor = TopBarColor,
             titleContentColor = Color.Black,
         ),
         title = {

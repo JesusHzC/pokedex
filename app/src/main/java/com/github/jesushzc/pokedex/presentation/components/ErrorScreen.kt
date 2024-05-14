@@ -20,7 +20,9 @@ import androidx.compose.ui.unit.sp
 import com.github.jesushzc.pokedex.R
 
 @Composable
-fun ErrorScreen() {
+fun ErrorScreen(
+    message: String = "Oops!\nSomething went wrong."
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -35,7 +37,7 @@ fun ErrorScreen() {
             )
             Spacer(modifier = Modifier.height(14.dp))
             Text(
-                text = "Oops!\nSomething went wrong.",
+                text = message,
                 fontSize = 28.sp,
                 color = Color.DarkGray,
                 textAlign = TextAlign.Center

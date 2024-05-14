@@ -13,8 +13,10 @@ import coil.request.SuccessResult
 import com.github.jesushzc.pokedex.di.DefaultDispatcher
 import com.github.jesushzc.pokedex.di.IoDispatcher
 import com.github.jesushzc.pokedex.domain.model.PokemonEntry
+import com.github.jesushzc.pokedex.domain.use_case.PokemonInfoUseCase
 import com.github.jesushzc.pokedex.domain.use_case.PokemonListUseCase
 import com.github.jesushzc.pokedex.utils.Constants.API_ERROR_MESSAGE
+import com.github.jesushzc.pokedex.utils.Constants.EMPTY_STRING
 import com.github.jesushzc.pokedex.utils.Constants.NUMBER_POKEMON_KEY
 import com.github.jesushzc.pokedex.utils.Constants.PAGE_SIZE
 import com.github.jesushzc.pokedex.utils.Constants.URL_IMAGE_POKEMON
@@ -33,6 +35,7 @@ import kotlin.coroutines.suspendCoroutine
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val pokemonListUseCase: PokemonListUseCase,
+    private val pokemonInfoUseCase: PokemonInfoUseCase,
     private val appContext: Context,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
@@ -42,6 +45,8 @@ class HomeViewModel @Inject constructor(
 
     var state by mutableStateOf(HomeState())
         private set
+
+    private var backupList: List<PokemonEntry> = emptyList()
 
     init {
         paginator = DefaultPaginator(
@@ -64,6 +69,7 @@ class HomeViewModel @Inject constructor(
                     page = newKey,
                     endReached = items.isEmpty()
                 )
+                backupList = state.items
             }
         )
         loadNextItems()
@@ -133,6 +139,73 @@ class HomeViewModel @Inject constructor(
                 // Converting it to bitmap and using it to calculate the palette
                 calcDominantColors(result.drawable) { backgroundColor, textColor ->
                     dominantColor(backgroundColor, textColor)
+                }
+            } else {
+                dominantColor(Color.White, Color.Black)
+            }
+        }
+    }
+
+    fun onQueryChanged(query: String) {
+        state = state.copy(query = query.lowercase())
+        if (query.isEmpty())
+            state = state.copy(
+                items = backupList,
+                searchingWasFound = false,
+                error = null
+            )
+    }
+
+    fun onSearch() {
+        val query = state.query
+
+        if (query.isEmpty())
+            return
+
+        state = state.copy(
+            searching = true
+        )
+
+        val findItem = backupList.find { it.name == query }
+
+        if (findItem != null) {
+            state = state.copy(
+                items = listOf(findItem),
+                searching = false,
+                searchingWasFound = true
+            )
+            return
+        }
+
+        viewModelScope.launch(defaultDispatcher) {
+            when (val result = pokemonInfoUseCase.invoke(query)) {
+                is Resource.Success -> {
+                    val url = URL_IMAGE_POKEMON.replace(NUMBER_POKEMON_KEY, result.data?.id.toString())
+                    val (backgroundColor, textColor) = fetchColorsAsync(url)
+                    state = state.copy(
+                        items = listOf(
+                            PokemonEntry(
+                                number = result.data?.id ?: 0,
+                                name = result.data?.name?.replaceFirstChar {
+                                    if (it.isLowerCase()) it.titlecase(
+                                        Locale.ROOT
+                                    ) else it.toString()
+                                } ?: EMPTY_STRING,
+                                imageUrl = url,
+                                containerColor = backgroundColor ?: Color.White,
+                                contentColor = textColor ?: Color.Black
+                            )
+                        ),
+                        searching = false,
+                        searchingWasFound = true
+                    )
+                }
+                is Resource.Error -> {
+                    state = state.copy(
+                        items = backupList,
+                        error = "Pokemon not found",
+                        searching = false
+                    )
                 }
             }
         }

@@ -7,5 +7,8 @@ data class HomeState(
     val items: List<PokemonEntry> = emptyList(),
     val error: String? = null,
     val endReached: Boolean = false,
-    val page: Int = 0
+    val page: Int = 0,
+    val query: String = "",
+    val searching: Boolean = false,
+    val searchingWasFound: Boolean = false
 )
