@@ -25,8 +25,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -108,7 +110,12 @@ private fun SharedTransitionScope.PokemonContent(
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val state = viewModel.state
-    Column {
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = Modifier
+            .verticalScroll(scrollState)
+            .padding(bottom = 56.dp)
+    ) {
         Header(
             imageUrl = pokemonImage,
             color = color,
