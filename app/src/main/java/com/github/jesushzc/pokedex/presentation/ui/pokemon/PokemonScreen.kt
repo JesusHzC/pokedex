@@ -163,14 +163,20 @@ private fun SharedTransitionScope.PokemonContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            val height: String = state.pokemon?.height?.let { height ->
+                (height * 0.1).toString().take(4)
+            } ?: EMPTY_STRING
+            val weight: String = state.pokemon?.weight?.let { weight ->
+                (weight * 0.1).toString().take(4)
+            } ?: EMPTY_STRING
             val characteristics = listOf(
                 PokemonCharacteristic(
                     PokemonCharacteristicType.HEIGHT,
-                    state.pokemon?.height?.toString() ?: EMPTY_STRING
+                    "$height m"
                 ),
                 PokemonCharacteristic(
                     PokemonCharacteristicType.WEIGHT,
-                    state.pokemon?.weight?.toString() ?: EMPTY_STRING
+                    "$weight kg"
                 ),
                 PokemonCharacteristic(
                     PokemonCharacteristicType.ABILITY,
