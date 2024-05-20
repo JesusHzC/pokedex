@@ -28,4 +28,11 @@ class FavoritesViewModel @Inject constructor(
         }
     }
 
+    fun deleteFavorite(pokemon: PokemonEntity) {
+        viewModelScope.launch(ioDispatcher) {
+            pokemonDao.deletePokemon(pokemon)
+            getFavorites()
+        }
+    }
+
 }

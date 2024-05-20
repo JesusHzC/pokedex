@@ -58,6 +58,7 @@ fun Navigation(
 
             composable(Routes.FAVORITES_SCREEN) {
                 FavoritesScreen(
+                    animatedVisibilityScope = this,
                     onNavigateTo = { route ->
                         navController.navigate(route)
                     }

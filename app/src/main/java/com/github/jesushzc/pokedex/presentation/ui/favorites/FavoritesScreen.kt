@@ -1,5 +1,11 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package com.github.jesushzc.pokedex.presentation.ui.favorites
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -38,16 +44,19 @@ import com.github.jesushzc.pokedex.data.local.entity.PokemonEntity
 import com.github.jesushzc.pokedex.data.local.entity.PokemonType
 import com.github.jesushzc.pokedex.presentation.components.CustomScaffold
 import com.github.jesushzc.pokedex.presentation.components.ErrorScreen
+import com.github.jesushzc.pokedex.presentation.components.SwipeToDeleteContainer
 import com.github.jesushzc.pokedex.presentation.navigation.Routes
 import com.github.jesushzc.pokedex.utils.Constants
 import com.github.jesushzc.pokedex.utils.convertColor
 import com.github.jesushzc.pokedex.utils.getContrastingTextColor
 import com.github.jesushzc.pokedex.utils.parseTypeToColor
 import com.github.jesushzc.pokedex.utils.parseTypeToImage
+import com.github.jesushzc.pokedex.utils.replaceWithSharp
 
 @Composable
-fun FavoritesScreen(
+fun SharedTransitionScope.FavoritesScreen(
     viewModel: FavoritesViewModel = hiltViewModel(),
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onNavigateTo: (String) -> Unit
 ) {
     LaunchedEffect(key1 = true) {
@@ -62,13 +71,19 @@ fun FavoritesScreen(
         onNavigateTo = onNavigateTo
     ) {
         FavoritesContent(
-            viewModel = viewModel
+            viewModel = viewModel,
+            animatedVisibilityScope = animatedVisibilityScope,
+            onNavigateTo = onNavigateTo
         )
     }
 }
 
 @Composable
-private fun FavoritesContent(viewModel: FavoritesViewModel) {
+private fun SharedTransitionScope.FavoritesContent(
+    viewModel: FavoritesViewModel,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    onNavigateTo: (String) -> Unit
+) {
     when {
         viewModel.favorites.isEmpty() -> {
             ErrorScreen(
@@ -86,8 +101,20 @@ private fun FavoritesContent(viewModel: FavoritesViewModel) {
                     items = viewModel.favorites,
                     key = { pokemon -> pokemon._id }
                 ) { pokemon ->
-                    FavoriteCard(
-                        pokemon = pokemon
+                    SwipeToDeleteContainer(
+                        item = pokemon,
+                        modifier = Modifier.clip(RoundedCornerShape(16.dp)),
+                        onDelete = { viewModel.deleteFavorite(it) },
+                        content = {
+                            FavoriteCard(
+                                pokemon = it,
+                                animatedVisibilityScope = animatedVisibilityScope,
+                                onPokemonClick = {
+                                    val image = it.imageUrl.replaceWithSharp()
+                                    onNavigateTo(Routes.POKEMON_SCREEN + "/${it.name}/$image/${it._id}/${it.details?.color}")
+                                }
+                            )
+                        }
                     )
                 }
             }
@@ -96,15 +123,18 @@ private fun FavoritesContent(viewModel: FavoritesViewModel) {
 }
 
 @Composable
-fun FavoriteCard(
-    pokemon: PokemonEntity
+fun SharedTransitionScope.FavoriteCard(
+    pokemon: PokemonEntity,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    onPokemonClick: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = convertColor(pokemon.details?.color!!),
             contentColor = getContrastingTextColor(pokemon.details?.color!!)
-        )
+        ),
+        onClick = onPokemonClick
     ) {
         Row(
             modifier = Modifier.fillMaxWidth()
@@ -112,7 +142,7 @@ fun FavoriteCard(
             Column(
                 modifier = Modifier
                     .weight(2f)
-                    .padding(8.dp)
+                    .padding(12.dp)
             ) {
                 Text(
                     text = "No. ${pokemon._id}",
@@ -138,7 +168,14 @@ fun FavoriteCard(
                 model = pokemon.imageUrl,
                 contentDescription = "Pokemon image",
                 modifier = Modifier
-                    .weight(1f),
+                    .weight(1f)
+                    .sharedElement(
+                        state = rememberSharedContentState(key = "image/${pokemon.imageUrl}"),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        boundsTransform = { _, _ ->
+                            tween(durationMillis = 1000)
+                        }
+                    ),
                 contentScale = ContentScale.Crop
             )
         }
