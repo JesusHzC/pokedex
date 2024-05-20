@@ -8,39 +8,39 @@ import com.github.jesushzc.pokedex.domain.model.PokemonList
 import com.github.jesushzc.pokedex.domain.repository.PokemonRepository
 import com.github.jesushzc.pokedex.utils.Constants.API_ERROR_LOG_TAG
 import com.github.jesushzc.pokedex.utils.Constants.API_ERROR_MESSAGE
-import com.github.jesushzc.pokedex.utils.Resource
+import com.github.jesushzc.pokedex.utils.Network
 
 class PokemonRepositoryImpl(
     private val pokeApi: PokeApi
 ): PokemonRepository {
 
-    override suspend fun getPokemonList(limit: Int, offset: Int): Resource<PokemonList> {
+    override suspend fun getPokemonList(limit: Int, offset: Int): Network<PokemonList> {
         return try {
             val response = pokeApi.getPokemonList(limit, offset)
-            Resource.Success(response)
+            Network.Success(response)
         } catch(e: Exception) {
             Log.e(API_ERROR_LOG_TAG, e.message ?: API_ERROR_MESSAGE)
-            Resource.Error(API_ERROR_MESSAGE)
+            Network.Error(API_ERROR_MESSAGE)
         }
     }
 
-    override suspend fun getPokemonInfo(name: String): Resource<Pokemon> {
+    override suspend fun getPokemonInfo(name: String): Network<Pokemon> {
         return try {
             val response = pokeApi.getPokemonInfo(name)
-            Resource.Success(response)
+            Network.Success(response)
         } catch(e: Exception) {
             Log.e(API_ERROR_LOG_TAG, e.message ?: API_ERROR_MESSAGE)
-            Resource.Error(API_ERROR_MESSAGE)
+            Network.Error(API_ERROR_MESSAGE)
         }
     }
 
-    override suspend fun getPokemonCharacteristic(id: Int): Resource<Characteristic> {
+    override suspend fun getPokemonCharacteristic(id: Int): Network<Characteristic> {
         return try {
             val response = pokeApi.getPokemonCharacteristic(id)
-            Resource.Success(response)
+            Network.Success(response)
         } catch(e: Exception) {
             Log.e(API_ERROR_LOG_TAG, e.message ?: API_ERROR_MESSAGE)
-            Resource.Error(API_ERROR_MESSAGE)
+            Network.Error(API_ERROR_MESSAGE)
         }
     }
 

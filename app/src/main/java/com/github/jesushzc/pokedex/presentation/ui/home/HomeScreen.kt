@@ -79,6 +79,7 @@ fun SharedTransitionScope.HomeScreen(
 
     CustomScaffold(
         title = "Pokedex",
+        showToolbar = false,
         showFloatingButton = showFloatButton,
         currentRoute = Routes.HOME_SCREEN,
         onNavigateTo = onNavigateTo,

@@ -21,11 +21,10 @@ import com.github.jesushzc.pokedex.utils.Constants.NUMBER_POKEMON_KEY
 import com.github.jesushzc.pokedex.utils.Constants.PAGE_SIZE
 import com.github.jesushzc.pokedex.utils.Constants.URL_IMAGE_POKEMON
 import com.github.jesushzc.pokedex.utils.DefaultPaginator
-import com.github.jesushzc.pokedex.utils.Resource
+import com.github.jesushzc.pokedex.utils.Network
 import com.github.jesushzc.pokedex.utils.calcDominantColors
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
@@ -85,12 +84,12 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun getNextPage(nextPage: Int): Result<List<PokemonEntry>> {
         return when (val result = pokemonListUseCase.invoke(PAGE_SIZE, nextPage * PAGE_SIZE)) {
-            is Resource.Error -> {
+            is Network.Error -> {
                 state = state.copy(error = API_ERROR_MESSAGE)
                 Result.failure(Exception(result.message ?: API_ERROR_MESSAGE))
             }
 
-            is Resource.Success -> {
+            is Network.Success -> {
                 val resultApi = result.data
                 val pokemonEntries = resultApi?.results?.mapIndexed { index, entry ->
                     val number = if (entry.url.endsWith("/")) {
@@ -187,7 +186,7 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch(defaultDispatcher) {
             when (val result = pokemonInfoUseCase.invoke(query)) {
-                is Resource.Success -> {
+                is Network.Success -> {
                     val url = URL_IMAGE_POKEMON.replace(NUMBER_POKEMON_KEY, result.data?.id.toString())
                     val (backgroundColor, textColor) = fetchColorsAsync(url)
                     state = state.copy(
@@ -208,7 +207,7 @@ class HomeViewModel @Inject constructor(
                         searchingWasFound = true
                     )
                 }
-                is Resource.Error -> {
+                is Network.Error -> {
                     state = state.copy(
                         items = backupList,
                         error = "Pokemon not found",

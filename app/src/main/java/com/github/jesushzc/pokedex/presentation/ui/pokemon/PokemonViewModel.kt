@@ -14,7 +14,7 @@ import com.github.jesushzc.pokedex.domain.use_case.PokemonCharacteristicUseCase
 import com.github.jesushzc.pokedex.domain.use_case.PokemonInfoUseCase
 import com.github.jesushzc.pokedex.utils.Constants
 import com.github.jesushzc.pokedex.utils.Constants.API_ERROR_MESSAGE
-import com.github.jesushzc.pokedex.utils.Resource
+import com.github.jesushzc.pokedex.utils.Network
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
@@ -50,13 +50,13 @@ class PokemonViewModel @Inject constructor(
     fun getPokemonInfo(pokemonName: String) {
         viewModelScope.launch {
             state = when (val result = pokemonInfoUseCase(pokemonName)) {
-                is Resource.Success -> {
+                is Network.Success -> {
                     state.copy(
                         pokemon = result.data
                     )
                 }
 
-                is Resource.Error -> {
+                is Network.Error -> {
                     state.copy(
                         error = result.message ?: API_ERROR_MESSAGE
                     )
@@ -68,13 +68,13 @@ class PokemonViewModel @Inject constructor(
     fun getCharacteristics(pokemonId: Int) {
         viewModelScope.launch {
             state = when (val result = pokemonCharacteristicUseCase(pokemonId)) {
-                is Resource.Success -> {
+                is Network.Success -> {
                     state.copy(
                         characteristic = result.data
                     )
                 }
 
-                is Resource.Error -> {
+                is Network.Error -> {
                     state.copy(
                         error = result.message ?: API_ERROR_MESSAGE
                     )

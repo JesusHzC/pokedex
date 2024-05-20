@@ -105,14 +105,13 @@ private fun NavigationBottom(
             iconEnabled = painterResource(id = R.drawable.favorites_enabled),
             iconDisabled = painterResource(id = R.drawable.favorites_disabled),
             title = "Favoritos"
-        ),
-
-        NavigationItem(
+        )
+        /*NavigationItem(
             route = "",
             iconEnabled = painterResource(id = R.drawable.user_enabled),
             iconDisabled = painterResource(id = R.drawable.user_disabled),
             title = "Perfil"
-        )
+        )*/
     )
 
     NavigationBar(

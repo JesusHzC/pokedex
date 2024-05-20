@@ -28,11 +28,16 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -43,12 +48,14 @@ import com.github.jesushzc.pokedex.R
 import com.github.jesushzc.pokedex.data.local.entity.PokemonEntity
 import com.github.jesushzc.pokedex.data.local.entity.PokemonType
 import com.github.jesushzc.pokedex.presentation.components.CustomScaffold
+import com.github.jesushzc.pokedex.presentation.components.DialogNoInternet
 import com.github.jesushzc.pokedex.presentation.components.ErrorScreen
 import com.github.jesushzc.pokedex.presentation.components.SwipeToDeleteContainer
 import com.github.jesushzc.pokedex.presentation.navigation.Routes
 import com.github.jesushzc.pokedex.utils.Constants
 import com.github.jesushzc.pokedex.utils.convertColor
 import com.github.jesushzc.pokedex.utils.getContrastingTextColor
+import com.github.jesushzc.pokedex.utils.hasInternetConnection
 import com.github.jesushzc.pokedex.utils.parseTypeToColor
 import com.github.jesushzc.pokedex.utils.parseTypeToImage
 import com.github.jesushzc.pokedex.utils.replaceWithSharp
@@ -84,6 +91,18 @@ private fun SharedTransitionScope.FavoritesContent(
     animatedVisibilityScope: AnimatedVisibilityScope,
     onNavigateTo: (String) -> Unit
 ) {
+    val context = LocalContext.current
+
+    var showDialog by remember {
+        mutableStateOf(false)
+    }
+
+    DialogNoInternet(
+        showDialog = showDialog,
+        onDismiss = { showDialog = false },
+        onConfirm = { showDialog = false }
+    )
+
     when {
         viewModel.favorites.isEmpty() -> {
             ErrorScreen(
@@ -110,8 +129,12 @@ private fun SharedTransitionScope.FavoritesContent(
                                 pokemon = it,
                                 animatedVisibilityScope = animatedVisibilityScope,
                                 onPokemonClick = {
-                                    val image = it.imageUrl.replaceWithSharp()
-                                    onNavigateTo(Routes.POKEMON_SCREEN + "/${it.name}/$image/${it._id}/${it.details?.color}")
+                                    if (hasInternetConnection(context)) {
+                                        val image = it.imageUrl.replaceWithSharp()
+                                        onNavigateTo(Routes.POKEMON_SCREEN + "/${it.name}/$image/${it._id}/${it.details?.color}")
+                                    } else {
+                                        showDialog = true
+                                    }
                                 }
                             )
                         }
