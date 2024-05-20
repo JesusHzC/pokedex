@@ -111,3 +111,35 @@ fun View.isKeyboardOpen(): Boolean {
     val keypadHeight = screenHeight - rect.bottom;
     return keypadHeight > screenHeight * 0.15
 }
+
+/**
+ * Convert an Int color to a Compose color
+ */
+fun convertColor(color: Int): Color {
+    val red = android.graphics.Color.red(color) / 255f
+    val green = android.graphics.Color.green(color) / 255f
+    val blue = android.graphics.Color.blue(color) / 255f
+    val alpha = android.graphics.Color.alpha(color) / 255f
+
+    return Color(red = red, green = green, blue = blue, alpha = alpha)
+}
+
+/**
+ * Calculate the luminance of a color
+ */
+fun calculateLuminance(color: Color): Double {
+    val red = if (color.red <= 0.03928) color.red / 12.92 else Math.pow(((color.red + 0.055) / 1.055).toDouble(), 2.4)
+    val green = if (color.green <= 0.03928) color.green / 12.92 else Math.pow(((color.green + 0.055) / 1.055).toDouble(), 2.4)
+    val blue = if (color.blue <= 0.03928) color.blue / 12.92 else Math.pow(((color.blue + 0.055) / 1.055).toDouble(), 2.4)
+
+    return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+}
+
+/**
+ * Get a contrasting text color based on the background color
+ */
+fun getContrastingTextColor(backgroundColor: Int): Color {
+    val background = convertColor(backgroundColor)
+    val luminance = calculateLuminance(background)
+    return if (luminance > 0.5) Color.Black else Color.White
+}

@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.github.jesushzc.pokedex.presentation.ui.favorites.FavoritesScreen
 import com.github.jesushzc.pokedex.presentation.ui.home.HomeScreen
 import com.github.jesushzc.pokedex.presentation.ui.pokemon.PokemonScreen
 import com.github.jesushzc.pokedex.utils.replaceWithSlash
@@ -52,6 +53,14 @@ fun Navigation(
                     pokemonNumber = number,
                     color = color,
                     animatedVisibilityScope = this
+                )
+            }
+
+            composable(Routes.FAVORITES_SCREEN) {
+                FavoritesScreen(
+                    onNavigateTo = { route ->
+                        navController.navigate(route)
+                    }
                 )
             }
         }

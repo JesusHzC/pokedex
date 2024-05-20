@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.jesushzc.pokedex.R
+import com.github.jesushzc.pokedex.presentation.navigation.Routes
 import com.github.jesushzc.pokedex.presentation.theme.TopBarColor
 import com.github.jesushzc.pokedex.utils.Constants.EMPTY_STRING
 
@@ -41,7 +42,10 @@ import com.github.jesushzc.pokedex.utils.Constants.EMPTY_STRING
 fun CustomScaffold(
     title: String = EMPTY_STRING,
     showFloatingButton: Boolean = false,
+    showToolbar: Boolean = true,
     onFloatingButtonClicked: () -> Unit = {},
+    currentRoute: String = EMPTY_STRING,
+    onNavigateTo: (String) -> Unit,
     content: @Composable () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -49,12 +53,16 @@ fun CustomScaffold(
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            CustomTopAppBar(
-                title = title,
-                scrollBehavior = scrollBehavior
-            )
+            if (showToolbar) {
+                CustomTopAppBar(
+                    title = title,
+                    scrollBehavior = scrollBehavior
+                )
+            }
         },
-        bottomBar = { NavigationBottom() },
+        bottomBar = {
+            NavigationBottom(currentRoute, onNavigateTo)
+        },
         floatingActionButton = {
             FloatingButton(
                 showButton = showFloatingButton,
@@ -80,17 +88,20 @@ private data class NavigationItem(
 )
 
 @Composable
-private fun NavigationBottom() {
+private fun NavigationBottom(
+    currentRoute: String,
+    onNavigateTo: (String) -> Unit
+) {
     val items = listOf(
         NavigationItem(
-            route = "",
+            route = Routes.HOME_SCREEN,
             iconEnabled = painterResource(id = R.drawable.home_enabled),
             iconDisabled = painterResource(id = R.drawable.home_disabled),
             title = "Pokédex"
         ),
 
         NavigationItem(
-            route = "",
+            route = Routes.FAVORITES_SCREEN,
             iconEnabled = painterResource(id = R.drawable.favorites_enabled),
             iconDisabled = painterResource(id = R.drawable.favorites_disabled),
             title = "Favoritos"
@@ -104,8 +115,6 @@ private fun NavigationBottom() {
         )
     )
 
-    var selectedItem by remember { mutableIntStateOf(0) }
-
     NavigationBar(
         containerColor = Color.White
     ) {
@@ -113,7 +122,7 @@ private fun NavigationBottom() {
             NavigationBarItem(
                 icon = {
                     Image(
-                        painter = if (selectedItem == index)
+                        painter = if (currentRoute == navigationItem.route)
                             navigationItem.iconEnabled
                         else
                             navigationItem.iconDisabled,
@@ -123,9 +132,10 @@ private fun NavigationBottom() {
                     )
                 },
                 label = { Text(navigationItem.title) },
-                selected = selectedItem == index,
+                selected = currentRoute == navigationItem.route,
                 onClick = {
-                    selectedItem = index
+                    if (currentRoute != navigationItem.route)
+                        onNavigateTo(navigationItem.route)
                 }
             )
         }
@@ -172,5 +182,6 @@ private fun CustomScaffoldPreview() {
         title = "Pokédex",
         showFloatingButton = true,
         onFloatingButtonClicked = {},
+        onNavigateTo = {}
     ){}
 }

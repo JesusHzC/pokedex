@@ -1,5 +1,6 @@
 package com.github.jesushzc.pokedex.presentation.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import com.github.jesushzc.pokedex.R
 
 @Composable
 fun ErrorScreen(
+    @DrawableRes image: Int = R.drawable.error,
     message: String = "Oops!\nSomething went wrong."
 ) {
     Box(
@@ -31,7 +33,7 @@ fun ErrorScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.error),
+                painter = painterResource(id = image),
                 contentDescription = "Error",
                 modifier = Modifier.size(200.dp)
             )

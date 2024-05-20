@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.kaptPlugin)
     alias(libs.plugins.hiltPlugin)
+    alias(libs.plugins.realmPlugin)
 }
 
 android {
@@ -82,5 +83,6 @@ dependencies {
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.androidx.palette.ktx)
     implementation(libs.androidx.compose.animation)
+    implementation(libs.realm)
 
 }

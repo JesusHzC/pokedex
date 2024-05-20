@@ -80,6 +80,8 @@ fun SharedTransitionScope.HomeScreen(
     CustomScaffold(
         title = "Pokedex",
         showFloatingButton = showFloatButton,
+        currentRoute = Routes.HOME_SCREEN,
+        onNavigateTo = onNavigateTo,
         onFloatingButtonClicked = {
             coroutineScope.launch {
                 lazyListState.scrollToItem(0)
@@ -166,7 +168,7 @@ private fun SharedTransitionScope.HomeContent(
                     GridShimmer(totalElements = 12)
                 }
                 !state.error.isNullOrEmpty() -> {
-                    ErrorScreen(state.error)
+                    ErrorScreen(message = state.error)
                     onError()
                 }
                 else -> {

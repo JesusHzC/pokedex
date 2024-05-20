@@ -55,8 +55,56 @@ fun parseTypeToColor(type: Type): Color {
     }
 }
 
+fun parseTypeToColor(type: String): Color {
+    return when(type.lowercase(Locale.ROOT)) {
+        "normal" -> TypeNormal
+        "fire" -> TypeFire//
+        "water" -> TypeWater//
+        "electric" -> TypeElectric//
+        "grass" -> TypeGrass
+        "ice" -> TypeIce//
+        "fighting" -> TypeFighting
+        "poison" -> TypePoison
+        "ground" -> TypeGround
+        "flying" -> TypeFlying
+        "psychic" -> TypePsychic
+        "bug" -> TypeBug
+        "rock" -> TypeRock
+        "ghost" -> TypeGhost//
+        "dragon" -> TypeDragon//
+        "dark" -> TypeDark
+        "steel" -> TypeSteel
+        "fairy" -> TypeFairy//
+        else -> Color.Black
+    }
+}
+
 fun parseTypeToImage(type: Type): Int {
     return when(type.name!!.lowercase(Locale.ROOT)) {
+        "normal" -> R.drawable.normal
+        "fire" -> R.drawable.fire
+        "water" -> R.drawable.water
+        "electric" -> R.drawable.electric
+        "grass" -> R.drawable.grass
+        "ice" -> R.drawable.ice
+        "fighting" -> R.drawable.fighting
+        "poison" -> R.drawable.poison
+        "ground" -> R.drawable.ground
+        "flying" -> R.drawable.flying
+        "psychic" -> R.drawable.psychic
+        "bug" -> R.drawable.bug
+        "rock" -> R.drawable.rock
+        "ghost" -> R.drawable.ghost
+        "dragon" -> R.drawable.dragon
+        "dark" -> R.drawable.dark
+        "steel" -> R.drawable.steel
+        "fairy" -> R.drawable.fairy
+        else -> R.drawable.normal
+    }
+}
+
+fun parseTypeToImage(type: String): Int {
+    return when(type.lowercase(Locale.ROOT)) {
         "normal" -> R.drawable.normal
         "fire" -> R.drawable.fire
         "water" -> R.drawable.water

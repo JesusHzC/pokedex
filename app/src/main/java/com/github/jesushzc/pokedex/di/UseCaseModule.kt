@@ -19,7 +19,7 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
-    fun provideGetPokemonListUseCase(
+    fun providesGetPokemonListUseCase(
         repository: PokemonRepository
     ): PokemonListUseCase {
         return PokemonListUseCaseImpl(repository)
@@ -27,7 +27,7 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
-    fun provideGetPokemonInfoUseCase(
+    fun providesGetPokemonInfoUseCase(
         repository: PokemonRepository
     ): PokemonInfoUseCase {
         return PokemonInfoUseCaseImpl(repository)
@@ -35,7 +35,7 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
-    fun provideGetPokemonCharacteristicUseCase(
+    fun providesGetPokemonCharacteristicUseCase(
         repository: PokemonRepository
     ): PokemonCharacteristicUseCase {
         return PokemonCharacteristicUseCaseImpl(repository)

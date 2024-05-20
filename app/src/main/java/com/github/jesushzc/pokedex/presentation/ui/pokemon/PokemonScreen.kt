@@ -29,8 +29,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -56,6 +61,7 @@ import com.github.jesushzc.pokedex.domain.model.Type
 import com.github.jesushzc.pokedex.domain.model.Types
 import com.github.jesushzc.pokedex.presentation.components.ErrorScreen
 import com.github.jesushzc.pokedex.utils.Constants.EMPTY_STRING
+import com.github.jesushzc.pokedex.utils.convertColor
 import com.github.jesushzc.pokedex.utils.parseStatToAbbr
 import com.github.jesushzc.pokedex.utils.parseStatToColor
 import com.github.jesushzc.pokedex.utils.parseTypeToColor
@@ -74,6 +80,10 @@ fun SharedTransitionScope.PokemonScreen(
     val state = viewModel.state
 
     LaunchedEffect(key1 = true) {
+        viewModel.setPokemonId(pokemonNumber)
+        viewModel.setImageUrl(pokemonImage)
+        viewModel.setColor(color)
+        viewModel.setFavorite()
         viewModel.getPokemonInfo(
             pokemonName.replaceFirstChar { it.lowercase() }
         )
@@ -127,15 +137,40 @@ private fun SharedTransitionScope.PokemonContent(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
-            Text(
-                text = pokemonName,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "N° $pokemonNumber",
-                fontSize = 18.sp
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(
+                        text = pokemonName,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "N° $pokemonNumber",
+                        fontSize = 18.sp
+                    )
+                }
+                Row {
+                    TextButton(onClick = { viewModel.addOrRemoveFavorite() }) {
+                        Icon(
+                            imageVector = if (state.isFavorite)
+                                Icons.Default.Favorite
+                            else
+                                Icons.Default.FavoriteBorder,
+                            contentDescription = "Favorite"
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = if (state.isFavorite)
+                                "Remove from favorites"
+                            else
+                                "Add to favorites",
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -428,13 +463,4 @@ private fun SharedTransitionScope.Header(
             contentScale = ContentScale.Crop
         )
     }
-}
-
-fun convertColor(color: Int): Color {
-    val red = android.graphics.Color.red(color) / 255f
-    val green = android.graphics.Color.green(color) / 255f
-    val blue = android.graphics.Color.blue(color) / 255f
-    val alpha = android.graphics.Color.alpha(color) / 255f
-
-    return Color(red = red, green = green, blue = blue, alpha = alpha)
 }
