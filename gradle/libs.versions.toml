@@ -19,6 +19,7 @@ okHttpBom = "4.12.0"
 paletteKtx = "1.0.0"
 composeAnimation = "1.7.0-alpha08"
 realm = "1.11.0"
+lottie = "4.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -50,6 +51,7 @@ okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-i
 androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", version.ref = "paletteKtx" }
 androidx-compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "composeAnimation" }
 realm = { group = "io.realm.kotlin", name = "library-base", version.ref = "realm"}
+lottie = { group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottie" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

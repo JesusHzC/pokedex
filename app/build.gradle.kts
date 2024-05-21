@@ -84,5 +84,6 @@ dependencies {
     implementation(libs.androidx.palette.ktx)
     implementation(libs.androidx.compose.animation)
     implementation(libs.realm)
+    implementation(libs.lottie)
 
 }

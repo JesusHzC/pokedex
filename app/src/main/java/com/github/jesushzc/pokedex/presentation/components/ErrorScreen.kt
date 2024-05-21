@@ -2,12 +2,14 @@ package com.github.jesushzc.pokedex.presentation.components
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,7 +28,12 @@ fun ErrorScreen(
     message: String = "Oops!\nSomething went wrong."
 ) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .scrollable(
+                orientation = androidx.compose.foundation.gestures.Orientation.Vertical,
+                state = rememberScrollState()
+            ),
         contentAlignment = Alignment.Center
     ) {
         Column(
