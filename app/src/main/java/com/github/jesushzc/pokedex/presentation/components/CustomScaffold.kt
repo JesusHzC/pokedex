@@ -2,6 +2,7 @@ package com.github.jesushzc.pokedex.presentation.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -16,18 +17,21 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,7 +41,6 @@ import com.github.jesushzc.pokedex.presentation.navigation.Routes
 import com.github.jesushzc.pokedex.presentation.theme.TopBarColor
 import com.github.jesushzc.pokedex.utils.Constants.EMPTY_STRING
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomScaffold(
     title: String = EMPTY_STRING,
@@ -48,15 +51,42 @@ fun CustomScaffold(
     onNavigateTo: (String) -> Unit,
     content: @Composable () -> Unit
 ) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    val maxHeight = 231f
+    val minHeight = 0f
+    val density = LocalDensity.current.density
+
+    val toolbarHeightPx = with(LocalDensity.current) {
+        maxHeight.dp.roundToPx().toFloat()
+    }
+
+    val toolbarMinHeightPx = with(LocalDensity.current) {
+        minHeight.dp.roundToPx().toFloat()
+    }
+
+    val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
+    var newHeight by remember { mutableStateOf(0f) }
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val delta = available.y
+                val newOffset = toolbarOffsetHeightPx.value + delta
+                toolbarOffsetHeightPx.value = newOffset.coerceIn(toolbarMinHeightPx-toolbarHeightPx, 0f)
+                return Offset.Zero
+            }
+        }
+    }
+
+    LaunchedEffect(key1 = toolbarOffsetHeightPx.value){
+        newHeight = ((toolbarHeightPx + toolbarOffsetHeightPx.value) / density)
+    }
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = Modifier.nestedScroll(nestedScrollConnection),
         topBar = {
             if (showToolbar) {
                 CustomTopAppBar(
                     title = title,
-                    scrollBehavior = scrollBehavior
+                    height = newHeight
                 )
             }
         },
@@ -145,7 +175,7 @@ private fun NavigationBottom(
 @Composable
 fun CustomTopAppBar(
     title: String,
-    scrollBehavior: TopAppBarScrollBehavior
+    height: Float = 56f,
 ) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -156,7 +186,7 @@ fun CustomTopAppBar(
         title = {
             Text(title, fontWeight = FontWeight.Bold)
         },
-        scrollBehavior = scrollBehavior,
+        modifier = Modifier.heightIn(max = height.dp)
     )
 }
 

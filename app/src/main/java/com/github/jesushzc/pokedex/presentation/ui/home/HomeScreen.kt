@@ -39,6 +39,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -114,6 +115,42 @@ private fun SharedTransitionScope.HomeContent(
     val state = viewModel.state
     val gridColumns = 2
 
+    val maxHeight = 80f
+    val minHeight = 0f
+    val density = LocalDensity.current.density
+
+    val toolbarHeightPx = with(LocalDensity.current) {
+        maxHeight.dp.roundToPx().toFloat()
+    }
+
+    val toolbarMinHeightPx = with(LocalDensity.current) {
+        minHeight.dp.roundToPx().toFloat()
+    }
+
+    val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
+    var newPaddingTop by remember { mutableStateOf(0f) }
+    var newHeight by remember { mutableStateOf(0f) }
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val delta = available.y
+                val newOffset = toolbarOffsetHeightPx.value + delta
+                toolbarOffsetHeightPx.value = newOffset.coerceIn(toolbarMinHeightPx-toolbarHeightPx, 0f)
+                return Offset.Zero
+            }
+        }
+    }
+
+    LaunchedEffect(key1 = toolbarOffsetHeightPx.value){
+        newHeight = ((toolbarHeightPx + toolbarOffsetHeightPx.value) / density)
+        newPaddingTop = if (newHeight == 0f) {
+            0f
+        } else {
+            8f
+        }
+    }
+
+
     val pullToRefreshState = rememberPullToRefreshState()
 
     LaunchedEffect(state.pullToRefresh) {
@@ -141,11 +178,13 @@ private fun SharedTransitionScope.HomeContent(
         )
         Column(
             modifier = Modifier.fillMaxWidth()
+                .nestedScroll(nestedScrollConnection)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(PaddingValues(horizontal = 16.dp, vertical = 12.dp)),
+                    .padding(PaddingValues(start = 16.dp, end = 16.dp, top = newPaddingTop.dp, bottom = 0.dp))
+                    .height(newHeight.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
