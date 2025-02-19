@@ -8,7 +8,7 @@ Pokedex is an application for retrieving information about Pokémon through the 
 - MVVM  
 - Clean Code  
 - Dagger Hilt  
-- Real Database  
+- Realm Database  
 - Retrofit  
 
 # Screenshots
